@@ -4,9 +4,18 @@ export default class MainMenu extends Phaser.Scene {
   }
 
   create() {
+    this.playerConfig = {
+      name: '',
+      operation: null,
+      difficulty: null,
+    };
+
     this.createStars();
     this.createMathSymbols();
     this.createTitle();
+    this.createNameInput();
+    this.createOperationSelector();
+    this.createDifficultySelector();
     this.createPlayButton();
   }
 
@@ -52,8 +61,8 @@ export default class MainMenu extends Phaser.Scene {
   }
 
   createTitle() {
-    const title = this.add.text(400, 180, 'MATH INVADERS', {
-      fontSize: '64px',
+    const title = this.add.text(400, 60, 'MATH INVADERS', {
+      fontSize: '48px',
       fontFamily: 'monospace',
       color: '#39ff14',
       fontStyle: 'bold',
@@ -72,19 +81,197 @@ export default class MainMenu extends Phaser.Scene {
     });
   }
 
+  createNameInput() {
+    const label = this.add.text(400, 130, 'NOMBRE', {
+      fontSize: '16px',
+      fontFamily: 'monospace',
+      color: '#39ff14',
+      fontStyle: 'bold',
+    });
+    label.setOrigin(0.5);
+
+    const inputElement = document.createElement('input');
+    inputElement.type = 'text';
+    inputElement.maxLength = 15;
+    inputElement.placeholder = 'Ingresa tu nombre...';
+    inputElement.style.cssText = `
+      background: transparent;
+      border: 2px solid #39ff14;
+      border-radius: 8px;
+      color: #39ff14;
+      font-family: monospace;
+      font-size: 18px;
+      padding: 8px 16px;
+      text-align: center;
+      width: 280px;
+      outline: none;
+    `;
+
+    this.nameInput = this.add.dom(400, 170, inputElement);
+
+    inputElement.addEventListener('input', (e) => {
+      this.playerConfig.name = e.target.value.trim();
+      this.validateForm();
+    });
+  }
+
+  createOperationSelector() {
+    const label = this.add.text(400, 230, 'OPERACIÓN', {
+      fontSize: '16px',
+      fontFamily: 'monospace',
+      color: '#39ff14',
+      fontStyle: 'bold',
+    });
+    label.setOrigin(0.5);
+
+    const operations = [
+      { key: 'addition', symbol: '+', label: 'Suma' },
+      { key: 'subtraction', symbol: '-', label: 'Resta' },
+      { key: 'multiplication', symbol: '×', label: 'Multiplicación' },
+      { key: 'division', symbol: '÷', label: 'División' },
+    ];
+
+    this.operationButtons = [];
+    const startX = 400 - (operations.length - 1) * 55;
+
+    operations.forEach((op, i) => {
+      const x = startX + i * 110;
+      const y = 280;
+
+      const container = this.add.container(x, y);
+
+      const bg = this.add.graphics();
+      bg.fillStyle(0x39ff14, 0.1);
+      bg.lineStyle(2, 0x39ff14, 0.6);
+      bg.fillRoundedRect(-45, -25, 90, 50, 6);
+      bg.strokeRoundedRect(-45, -25, 90, 50, 6);
+
+      const symbol = this.add.text(0, -8, op.symbol, {
+        fontSize: '20px',
+        fontFamily: 'monospace',
+        color: '#39ff14',
+        fontStyle: 'bold',
+      });
+      symbol.setOrigin(0.5);
+
+      const text = this.add.text(0, 12, op.label, {
+        fontSize: '10px',
+        fontFamily: 'monospace',
+        color: '#39ff14',
+      });
+      text.setOrigin(0.5);
+
+      container.add([bg, symbol, text]);
+      container.setSize(90, 50);
+
+      container.setInteractive({ useHandCursor: true });
+
+      container.on('pointerdown', () => {
+        this.playerConfig.operation = op.key;
+        this.updateOperationButtons();
+        this.validateForm();
+      });
+
+      this.operationButtons.push({ container, bg, key: op.key });
+    });
+  }
+
+  updateOperationButtons() {
+    this.operationButtons.forEach((btn) => {
+      btn.bg.clear();
+      if (btn.key === this.playerConfig.operation) {
+        btn.bg.fillStyle(0x39ff14, 0.4);
+        btn.bg.lineStyle(3, 0x39ff14, 1);
+      } else {
+        btn.bg.fillStyle(0x39ff14, 0.1);
+        btn.bg.lineStyle(2, 0x39ff14, 0.6);
+      }
+      btn.bg.fillRoundedRect(-45, -25, 90, 50, 6);
+      btn.bg.strokeRoundedRect(-45, -25, 90, 50, 6);
+    });
+  }
+
+  createDifficultySelector() {
+    const label = this.add.text(400, 340, 'DIFICULTAD', {
+      fontSize: '16px',
+      fontFamily: 'monospace',
+      color: '#39ff14',
+      fontStyle: 'bold',
+    });
+    label.setOrigin(0.5);
+
+    const difficulties = [
+      { key: 'easy', label: 'Fácil' },
+      { key: 'medium', label: 'Medio' },
+      { key: 'hard', label: 'Difícil' },
+    ];
+
+    this.difficultyButtons = [];
+    const startX = 400 - (difficulties.length - 1) * 70;
+
+    difficulties.forEach((diff, i) => {
+      const x = startX + i * 140;
+      const y = 390;
+
+      const container = this.add.container(x, y);
+
+      const bg = this.add.graphics();
+      bg.fillStyle(0x39ff14, 0.1);
+      bg.lineStyle(2, 0x39ff14, 0.6);
+      bg.fillRoundedRect(-55, -20, 110, 40, 6);
+      bg.strokeRoundedRect(-55, -20, 110, 40, 6);
+
+      const text = this.add.text(0, 0, diff.label, {
+        fontSize: '16px',
+        fontFamily: 'monospace',
+        color: '#39ff14',
+        fontStyle: 'bold',
+      });
+      text.setOrigin(0.5);
+
+      container.add([bg, text]);
+      container.setSize(110, 40);
+
+      container.setInteractive({ useHandCursor: true });
+
+      container.on('pointerdown', () => {
+        this.playerConfig.difficulty = diff.key;
+        this.updateDifficultyButtons();
+        this.validateForm();
+      });
+
+      this.difficultyButtons.push({ container, bg, key: diff.key });
+    });
+  }
+
+  updateDifficultyButtons() {
+    this.difficultyButtons.forEach((btn) => {
+      btn.bg.clear();
+      if (btn.key === this.playerConfig.difficulty) {
+        btn.bg.fillStyle(0x39ff14, 0.4);
+        btn.bg.lineStyle(3, 0x39ff14, 1);
+      } else {
+        btn.bg.fillStyle(0x39ff14, 0.1);
+        btn.bg.lineStyle(2, 0x39ff14, 0.6);
+      }
+      btn.bg.fillRoundedRect(-55, -20, 110, 40, 6);
+      btn.bg.strokeRoundedRect(-55, -20, 110, 40, 6);
+    });
+  }
+
   createPlayButton() {
-    const btn = this.add.container(400, 400);
+    const btn = this.add.container(400, 480);
 
     const bg = this.add.graphics();
-    bg.fillStyle(0x39ff14, 0.2);
-    bg.lineStyle(2, 0x39ff14, 1);
+    bg.fillStyle(0x555555, 0.3);
+    bg.lineStyle(2, 0x555555, 0.6);
     bg.fillRoundedRect(-100, -30, 200, 60, 8);
     bg.strokeRoundedRect(-100, -30, 200, 60, 8);
 
     const text = this.add.text(0, 0, 'JUGAR', {
       fontSize: '32px',
       fontFamily: 'monospace',
-      color: '#39ff14',
+      color: '#555555',
       fontStyle: 'bold',
     });
     text.setOrigin(0.5);
@@ -92,28 +279,63 @@ export default class MainMenu extends Phaser.Scene {
     btn.add([bg, text]);
     btn.setSize(200, 60);
 
+    this.playButton = btn;
+    this.playButtonBg = bg;
+    this.playButtonText = text;
+    this.playButtonEnabled = false;
+
     btn.setInteractive({ useHandCursor: true });
 
     btn.on('pointerover', () => {
-      bg.clear();
-      bg.fillStyle(0x39ff14, 0.4);
-      bg.lineStyle(3, 0x39ff14, 1);
-      bg.fillRoundedRect(-100, -30, 200, 60, 8);
-      bg.strokeRoundedRect(-100, -30, 200, 60, 8);
-      text.setScale(1.1);
+      if (this.playButtonEnabled) {
+        bg.clear();
+        bg.fillStyle(0x39ff14, 0.5);
+        bg.lineStyle(3, 0x39ff14, 1);
+        bg.fillRoundedRect(-100, -30, 200, 60, 8);
+        bg.strokeRoundedRect(-100, -30, 200, 60, 8);
+        text.setScale(1.1);
+      }
     });
 
     btn.on('pointerout', () => {
-      bg.clear();
-      bg.fillStyle(0x39ff14, 0.2);
-      bg.lineStyle(2, 0x39ff14, 1);
-      bg.fillRoundedRect(-100, -30, 200, 60, 8);
-      bg.strokeRoundedRect(-100, -30, 200, 60, 8);
-      text.setScale(1);
+      if (this.playButtonEnabled) {
+        bg.clear();
+        bg.fillStyle(0x39ff14, 0.3);
+        bg.lineStyle(2, 0x39ff14, 1);
+        bg.fillRoundedRect(-100, -30, 200, 60, 8);
+        bg.strokeRoundedRect(-100, -30, 200, 60, 8);
+        text.setScale(1);
+      }
     });
 
     btn.on('pointerdown', () => {
-      console.log('Jugar presionado - escena Game pendiente');
+      if (this.playButtonEnabled) {
+        console.log('Config:', this.playerConfig);
+      }
     });
+  }
+
+  validateForm() {
+    const isValid =
+      this.playerConfig.name !== '' &&
+      this.playerConfig.operation !== null &&
+      this.playerConfig.difficulty !== null;
+
+    if (isValid !== this.playButtonEnabled) {
+      this.playButtonEnabled = isValid;
+
+      this.playButtonBg.clear();
+      if (isValid) {
+        this.playButtonBg.fillStyle(0x39ff14, 0.3);
+        this.playButtonBg.lineStyle(2, 0x39ff14, 1);
+        this.playButtonText.setColor('#39ff14');
+      } else {
+        this.playButtonBg.fillStyle(0x555555, 0.3);
+        this.playButtonBg.lineStyle(2, 0x555555, 0.6);
+        this.playButtonText.setColor('#555555');
+      }
+      this.playButtonBg.fillRoundedRect(-100, -30, 200, 60, 8);
+      this.playButtonBg.strokeRoundedRect(-100, -30, 200, 60, 8);
+    }
   }
 }

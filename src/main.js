@@ -8,6 +8,9 @@ const config = {
   height: 600,
   backgroundColor: '#000000',
   parent: 'app',
+  dom: {
+    createContainer: true,
+  },
   scene: [MainMenu],
 };
 
