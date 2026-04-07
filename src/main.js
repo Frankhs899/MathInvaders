@@ -1,6 +1,6 @@
-import './style.css';
+import '@/style.css';
 import Phaser from 'phaser';
-import MainMenu from './scenes/mainMenu';
+import MainMenu from '@/scenes/mainMenu';
 
 const config = {
   type: Phaser.AUTO,
