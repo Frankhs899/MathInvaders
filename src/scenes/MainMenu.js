@@ -116,63 +116,122 @@ export default class MainMenu extends Phaser.Scene {
   }
 
   createOperationSelector() {
-    const label = this.add.text(400, 230, 'OPERACIÓN', {
+    this.operationButtons = [];
+
+    this.createButtonGroup({
+      label: 'OPERACIÓN',
+      labelY: 230,
+      options: [
+        { key: 'addition', symbol: '+', label: 'Suma' },
+        { key: 'subtraction', symbol: '-', label: 'Resta' },
+        { key: 'multiplication', symbol: '×', label: 'Multiplicación' },
+        { key: 'division', symbol: '÷', label: 'División' },
+      ],
+      buttonY: 280,
+      buttonWidth: 90,
+      buttonHeight: 50,
+      spacing: 110,
+      fontSize: 10,
+      symbolFontSize: 20,
+      onSelect: (key) => {
+        this.playerConfig.operation = key;
+        this.updateOperationButtons();
+        this.validateForm();
+      },
+      buttonsRef: this.operationButtons,
+    });
+  }
+
+  createDifficultySelector() {
+    this.difficultyButtons = [];
+
+    this.createButtonGroup({
+      label: 'DIFICULTAD',
+      labelY: 340,
+      options: [
+        { key: 'easy', label: 'Fácil' },
+        { key: 'medium', label: 'Medio' },
+        { key: 'hard', label: 'Difícil' },
+      ],
+      buttonY: 390,
+      buttonWidth: 110,
+      buttonHeight: 40,
+      spacing: 140,
+      fontSize: 16,
+      onSelect: (key) => {
+        this.playerConfig.difficulty = key;
+        this.updateDifficultyButtons();
+        this.validateForm();
+      },
+      buttonsRef: this.difficultyButtons,
+    });
+  }
+
+  createButtonGroup({
+    label,
+    labelY,
+    options,
+    buttonY,
+    buttonWidth,
+    buttonHeight,
+    spacing,
+    fontSize,
+    symbolFontSize,
+    onSelect,
+    buttonsRef,
+  }) {
+    const labelText = this.add.text(400, labelY, label, {
       fontSize: '16px',
       fontFamily: 'monospace',
       color: '#39ff14',
       fontStyle: 'bold',
     });
-    label.setOrigin(0.5);
+    labelText.setOrigin(0.5);
 
-    const operations = [
-      { key: 'addition', symbol: '+', label: 'Suma' },
-      { key: 'subtraction', symbol: '-', label: 'Resta' },
-      { key: 'multiplication', symbol: '×', label: 'Multiplicación' },
-      { key: 'division', symbol: '÷', label: 'División' },
-    ];
+    const halfW = buttonWidth / 2;
+    const halfH = buttonHeight / 2;
+    const startX = 400 - (options.length - 1) * (spacing / 2);
 
-    this.operationButtons = [];
-    const startX = 400 - (operations.length - 1) * 55;
+    options.forEach((opt, i) => {
+      const x = startX + i * spacing;
 
-    operations.forEach((op, i) => {
-      const x = startX + i * 110;
-      const y = 280;
-
-      const container = this.add.container(x, y);
+      const container = this.add.container(x, buttonY);
 
       const bg = this.add.graphics();
       bg.fillStyle(0x39ff14, 0.1);
       bg.lineStyle(2, 0x39ff14, 0.6);
-      bg.fillRoundedRect(-45, -25, 90, 50, 6);
-      bg.strokeRoundedRect(-45, -25, 90, 50, 6);
+      bg.fillRoundedRect(-halfW, -halfH, buttonWidth, buttonHeight, 6);
+      bg.strokeRoundedRect(-halfW, -halfH, buttonWidth, buttonHeight, 6);
 
-      const symbol = this.add.text(0, -8, op.symbol, {
-        fontSize: '20px',
-        fontFamily: 'monospace',
-        color: '#39ff14',
-        fontStyle: 'bold',
-      });
-      symbol.setOrigin(0.5);
+      const elements = [bg];
 
-      const text = this.add.text(0, 12, op.label, {
-        fontSize: '10px',
+      if (opt.symbol) {
+        const symbol = this.add.text(0, -8, opt.symbol, {
+          fontSize: `${symbolFontSize}px`,
+          fontFamily: 'monospace',
+          color: '#39ff14',
+          fontStyle: 'bold',
+        });
+        symbol.setOrigin(0.5);
+        elements.push(symbol);
+      }
+
+      const text = this.add.text(0, opt.symbol ? 12 : 0, opt.label, {
+        fontSize: `${fontSize}px`,
         fontFamily: 'monospace',
         color: '#39ff14',
       });
       text.setOrigin(0.5);
+      elements.push(text);
 
-      container.add([bg, symbol, text]);
-      container.setSize(90, 50);
+      container.add(elements);
+      container.setSize(buttonWidth, buttonHeight);
 
       container.setInteractive({ useHandCursor: true });
 
-      container.on('pointerdown', () => {
-        this.playerConfig.operation = op.key;
-        this.updateOperationButtons();
-        this.validateForm();
-      });
+      container.on('pointerdown', () => onSelect(opt.key));
 
-      this.operationButtons.push({ container, bg, key: op.key });
+      buttonsRef.push({ container, bg, key: opt.key });
     });
   }
 
@@ -188,59 +247,6 @@ export default class MainMenu extends Phaser.Scene {
       }
       btn.bg.fillRoundedRect(-45, -25, 90, 50, 6);
       btn.bg.strokeRoundedRect(-45, -25, 90, 50, 6);
-    });
-  }
-
-  createDifficultySelector() {
-    const label = this.add.text(400, 340, 'DIFICULTAD', {
-      fontSize: '16px',
-      fontFamily: 'monospace',
-      color: '#39ff14',
-      fontStyle: 'bold',
-    });
-    label.setOrigin(0.5);
-
-    const difficulties = [
-      { key: 'easy', label: 'Fácil' },
-      { key: 'medium', label: 'Medio' },
-      { key: 'hard', label: 'Difícil' },
-    ];
-
-    this.difficultyButtons = [];
-    const startX = 400 - (difficulties.length - 1) * 70;
-
-    difficulties.forEach((diff, i) => {
-      const x = startX + i * 140;
-      const y = 390;
-
-      const container = this.add.container(x, y);
-
-      const bg = this.add.graphics();
-      bg.fillStyle(0x39ff14, 0.1);
-      bg.lineStyle(2, 0x39ff14, 0.6);
-      bg.fillRoundedRect(-55, -20, 110, 40, 6);
-      bg.strokeRoundedRect(-55, -20, 110, 40, 6);
-
-      const text = this.add.text(0, 0, diff.label, {
-        fontSize: '16px',
-        fontFamily: 'monospace',
-        color: '#39ff14',
-        fontStyle: 'bold',
-      });
-      text.setOrigin(0.5);
-
-      container.add([bg, text]);
-      container.setSize(110, 40);
-
-      container.setInteractive({ useHandCursor: true });
-
-      container.on('pointerdown', () => {
-        this.playerConfig.difficulty = diff.key;
-        this.updateDifficultyButtons();
-        this.validateForm();
-      });
-
-      this.difficultyButtons.push({ container, bg, key: diff.key });
     });
   }
 
