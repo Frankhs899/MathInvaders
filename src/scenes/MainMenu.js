@@ -3,6 +3,10 @@ export default class MainMenu extends Phaser.Scene {
     super({ key: 'MainMenu' });
   }
 
+  preload() {
+    this.load.audio('menuMusic', 'audio/music/menu-theme.mp3');
+  }
+
   create() {
     this.playerConfig = {
       name: '',
@@ -17,6 +21,8 @@ export default class MainMenu extends Phaser.Scene {
     this.createOperationSelector();
     this.createDifficultySelector();
     this.createPlayButton();
+    this.menuMusic = this.sound.add('menuMusic', { loop: true, volume: 0.5 });
+    this.menuMusic.play();
   }
 
   createStars() {
