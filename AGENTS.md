@@ -21,7 +21,7 @@ src/
 ├── main.js              # Phaser game config and entry point
 ├── style.css            # Global CSS reset
 └── scenes/
-    └── mainMenu.js      # Main menu scene
+    └── mainMenu.js      # Main menu scene (player setup)
 public/
 ├── favicon.svg
 └── icons.svg
@@ -56,7 +56,13 @@ Each scene should follow the standard Phaser lifecycle:
 - `create()` — initialize game objects, call helper methods
 - `update()` — per-frame logic (if needed)
 
-Extract visual elements into private helper methods like `createStars()`, `createTitle()`, etc.
+Extract visual elements into helper methods like `createStars()`, `createTitle()`, etc.
+For repeated UI patterns, use a generic factory method (e.g., `createButtonGroup(config)`).
+
+### DOM Elements
+- Enable DOM container in game config: `dom: { createContainer: true }`
+- Use `this.add.dom(x, y, element)` for HTML inputs (text fields, etc.)
+- Attach event listeners directly to the DOM element, not the Phaser wrapper
 
 ### Types
 - This project uses plain JavaScript (no TypeScript)
@@ -79,13 +85,6 @@ Extract visual elements into private helper methods like `createStars()`, `creat
 - **Body** and **Footer** are both optional. Include them only when additional context or references are needed.
 - Allowed types: `feat`, `fix`, `perf`, `build`, `ci`, `docs`, `refactor`, `style`, `test`
 - Write messages in basic, brief English
-- Example:
-  ```
-  feat: add main menu scene with retro arcade style
-
-  - Create MainMenu scene with starfield background
-  - Add floating math symbols with tween animations
-  ```
 
 ### Assets
 - All assets are currently generated programmatically (no external images/sprites)
@@ -96,3 +95,4 @@ Extract visual elements into private helper methods like `createStars()`, `creat
 - Retro/arcade aesthetic with neon green (#39ff14) on black background
 - Monospace font family for all text
 - Subtle animations via Phaser tweens (pulse, float, hover effects)
+- Button states: dimmed/gray when disabled, neon green when enabled
